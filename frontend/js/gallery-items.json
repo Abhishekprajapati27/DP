@@ -1,0 +1,33 @@
+[
+  {
+    "type": "image",
+    "beforeImg": "assets/gallery/sofa1.jpg",
+    "title": "Sofa Cleaning"
+  },
+  {
+    "type": "image",
+    "beforeImg": "assets/gallery/carpet1.jpg",
+    "title": "Carpet Cleaning"
+  },
+  {
+    "type": "image",
+    "beforeImg": "assets/gallery/car1.jpg",
+    "title": "Car Interior"
+  },
+  {
+    "type": "image",
+    "beforeImg": "assets/gallery/mattress1.jpg",
+    "title": "Mattress Cleaning"
+  },
+  {
+    "type": "image",
+    "beforeImg": "assets/gallery/curtain1.jpg",
+    "title": "Curtain Cleaning"
+  },
+  {
+    "type": "image",
+    "beforeImg": "assets/gallery/home1.jpg",
+    "title": "Home Cleaning"
+  }
+]
+

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login | Event Booking</title>
+    <link rel="stylesheet" href="css/admin.css">
+    <script defer src="js/admin.js"></script>
+</head>
+
+<body>
+
+    <nav class="navbar">
+        <div class="logo-container">
+            <img src="assets/image.png" alt="Logo">
+        </div>
+        <ul class="nav-links">
+            <li><a href="index.html">Home</a></li>
+        </ul>
+    </nav>
+
+    <section class="admin-login-container">
+        <div class="admin-login-card">
+            <h1>Admin Portal</h1>
+            <p>Sign in to manage bookings, gallery, and services.</p>
+
+            <form id="adminLoginForm" class="admin-form">
+                <div class="form-group">
+                    <label for="adminEmail">Email</label>
+                    <input 
+                        id="adminEmail" 
+                        name="email" 
+                        type="email" 
+                        placeholder="Enter your email" 
+                        required 
+                        autocomplete="email"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="adminPassword">Password</label>
+                    <div class="password-wrapper">
+                        <input 
+                            id="adminPassword" 
+                            name="password" 
+                            type="password" 
+                            placeholder="Enter password" 
+                            required 
+                            autocomplete="current-password"
+                        >
+                        <button type="button" id="togglePassword" class="toggle-btn" aria-label="Toggle password visibility">👁</button>
+                    </div>
+                </div>
+
+                <button type="submit" class="login-btn">Sign In</button>
+                <p id="loginMessage" class="form-message" aria-live="polite"></p>
+            </form>
+
+            <div class="form-divider"></div>
+
+            <button type="button" id="forgotPasswordBtn" class="forgot-btn">Forgot your password?</button>
+
+            <form id="forgotPasswordForm" class="forgot-form hidden">
+                <p>Enter your registered email to receive password reset instructions.</p>
+
+                <div class="form-group">
+                    <label for="resetEmail">Email Address</label>
+                    <input 
+                        id="resetEmail" 
+                        name="email" 
+                        type="email" 
+                        placeholder="Enter registered email" 
+                        required 
+                        autocomplete="email"
+                    >
+                </div>
+
+                <button type="submit" class="reset-btn">Send Reset Link</button>
+                <p id="forgotMessage" class="form-message" aria-live="polite"></p>
+            </form>
+
+            <div class="back-to-home">
+                <p>Not an admin? <a href="index.html">Return to home</a></p>
+            </div>
+        </div>
+    </section>
+
+</body>
+
+</html>

@@ -1,0 +1,257 @@
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Poppins',sans-serif;
+}
+
+body{
+    background:#020617;
+    color:#fff;
+    overflow-x:hidden;
+}
+
+.navbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:18px 8%;
+    background:rgba(255,255,255,0.06);
+    backdrop-filter:blur(18px);
+    border-bottom:1px solid rgba(255,255,255,0.07);
+}
+
+.logo-container{
+    width:80px;
+    height:50px;
+    border-radius:50%;
+    background:linear-gradient(145deg,#ffffff,#d9d9d9);
+    box-shadow:10px 10px 20px rgba(0,0,0,0.25),-8px -8px 15px rgba(255,255,255,0.8);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    position:relative;
+    overflow:hidden;
+    transition:transform 0.4s ease,box-shadow 0.4s ease;
+}
+
+.logo-container::before{
+    content:'';
+    position:absolute;
+    top:10px;
+    left:15px;
+    width:60%;
+    height:30%;
+    background:rgba(255,255,255,0.5);
+    border-radius:50%;
+    transform:rotate(-20deg);
+}
+
+.logo-container img{
+    width:85%;
+    height:85%;
+    object-fit:contain;
+    border-radius:50%;
+}
+
+.logo-container:hover{
+    transform:translateY(-6px) scale(1.03);
+}
+
+.nav-links{
+    display:flex;
+    gap:24px;
+    list-style:none;
+    align-items:center;
+}
+
+.nav-links li{
+    list-style:none;
+}
+
+.nav-links a{
+    color:#fff;
+    text-decoration:none;
+    font-weight:500;
+    transition:color 0.25s ease;
+}
+
+.nav-links a:hover,
+.nav-links a.active{
+    color:#49d6d0;
+}
+
+.hero{
+    text-align:center;
+    padding:120px 10% 60px;
+}
+
+.hero h1{
+    font-size:3.4rem;
+    margin-bottom:20px;
+    line-height:1.05;
+}
+
+.hero p{
+    color:#cbd5e1;
+    max-width:760px;
+    margin:auto;
+    line-height:1.8;
+    font-size:1.05rem;
+}
+
+.services-container{
+    width:90%;
+    max-width:1240px;
+    margin:0 auto 80px;
+    display:grid;
+    gap:32px;
+}
+
+.service-card{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    min-height:320px;
+    background:rgba(255,255,255,0.05);
+    border:1px solid rgba(255,255,255,0.08);
+    border-radius:24px;
+    overflow:hidden;
+    transition:transform 0.35s ease,box-shadow 0.35s ease;
+}
+
+.service-card:hover{
+    transform:translateY(-10px);
+    box-shadow:0 20px 40px rgba(0,0,0,0.2);
+}
+
+.service-card img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+}
+
+.service-content{
+    padding:36px;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+}
+
+.service-content h2{
+    color:#49d6d0;
+    margin-bottom:18px;
+    font-size:1.9rem;
+}
+
+.service-content p{
+    margin-bottom:18px;
+    line-height:1.8;
+    color:#d2dae4;
+}
+
+.service-content ul{
+    margin-bottom:22px;
+    padding-left:18px;
+    color:#e0e9f4;
+}
+
+.service-content li{
+    margin-bottom:10px;
+    list-style:disc;
+}
+
+.btn{
+    display:inline-block;
+    padding:14px 28px;
+    background:#2563eb;
+    color:#fff;
+    text-decoration:none;
+    border-radius:999px;
+    font-weight:600;
+    transition:background 0.25s ease,transform 0.25s ease;
+}
+
+.btn:hover{
+    background:#1d4ed8;
+    transform:translateY(-2px);
+}
+
+.cta{
+    text-align:center;
+    padding:80px 10% 100px;
+    background:#081b33;
+}
+
+.cta h2{
+    font-size:2.6rem;
+    margin-bottom:18px;
+}
+
+.cta p{
+    margin-bottom:28px;
+    color:#cbd5e1;
+    font-size:1.05rem;
+}
+
+.cta-buttons{
+    display:flex;
+    justify-content:center;
+    flex-wrap:wrap;
+    gap:18px;
+}
+
+.call-btn,
+.whatsapp-btn{
+    text-decoration:none;
+    color:#fff;
+    padding:14px 28px;
+    border-radius:999px;
+    min-width:160px;
+    text-align:center;
+    font-weight:600;
+}
+
+.call-btn{
+    background:#2563eb;
+}
+
+.whatsapp-btn{
+    background:#25D366;
+}
+
+@media (max-width:1024px){
+    .service-card{
+        grid-template-columns:1fr;
+    }
+
+    .hero{
+        padding:100px 8% 40px;
+    }
+}
+
+@media (max-width:768px){
+    .navbar{
+        padding:16px 6%;
+    }
+
+    .hero h1{
+        font-size:2.5rem;
+    }
+
+    .hero p{
+        font-size:1rem;
+    }
+
+    .services-container{
+        width:94%;
+        gap:24px;
+    }
+
+    .service-content{
+        padding:28px;
+    }
+
+    .nav-links{
+        display:none;
+    }
+}
