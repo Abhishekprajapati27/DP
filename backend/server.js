@@ -19,6 +19,8 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+const fs = require('fs');
+
 // Serve frontend static files & uploads
 const frontendPath = path.join(__dirname, '../frontend');
 app.use(express.static(frontendPath));
@@ -31,7 +33,21 @@ app.use('/api/gallery-no-db', galleryNoDbRoutes);
 app.use('/api/gallery', galleryNoDbRoutes);
 app.use('/api/admin', adminRoutes);
 
-// Serve frontend for non-API routes
+// Clean routes for frontend pages (e.g. /booking, /services, /contact, etc.)
+app.get('/:page', (req, res, next) => {
+  if (req.path.startsWith('/api/') || req.path.startsWith('/uploads/')) {
+    return next();
+  }
+  const pageParam = req.params.page;
+  const fileName = pageParam.endsWith('.html') ? pageParam : `${pageParam}.html`;
+  const filePath = path.join(frontendPath, fileName);
+  if (fs.existsSync(filePath)) {
+    return res.sendFile(filePath);
+  }
+  next();
+});
+
+// Fallback to index.html for root or client-side navigation
 app.get('*', (req, res, next) => {
   if (req.path.startsWith('/api/') || req.path.startsWith('/uploads/')) {
     return next();

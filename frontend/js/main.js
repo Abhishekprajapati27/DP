@@ -57,18 +57,12 @@ cards.forEach(card=>{
     );
 
 });
-const loader =
-document.getElementById("loader");
+const loader = document.getElementById("loader");
 
-window.addEventListener(
-    "load",
-    ()=>{
-
-        setTimeout(()=>{
-
-            loader.style.display="none";
-
-        },1500);
-
+window.addEventListener("load", () => {
+    if (loader) {
+        setTimeout(() => {
+            loader.style.display = "none";
+        }, 1500);
     }
-);
+});
