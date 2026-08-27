@@ -8,9 +8,11 @@
     <title>Our Services | DP Sofa Dry Cleaning</title>
 
     <link rel="stylesheet" href="css/services.css">
+    <link rel="stylesheet" href="css/navbar.css">
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 
+    <script defer src="js/navbar.js"></script>
     <script defer src="js/services.js"></script>
 </head>
 
@@ -24,7 +26,13 @@
             <img src="assets/image.png" alt="DP Sofa Dry Cleaning">
         </div>
 
-        <ul class="nav-links">
+        <button class="menu-toggle" id="menuToggle" aria-label="Toggle navigation menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+
+        <ul class="nav-links" id="navLinks">
             <li><a href="index.html">Home</a></li>
             <li><a href="services.html" class="active">Services</a></li>
             <li><a href="gallery.html">Gallery</a></li>

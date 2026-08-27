@@ -9,9 +9,11 @@
 <title>Contact Us | DP Sofa Dry Cleaning</title>
 
 <link rel="stylesheet" href="css/contact.css">
+<link rel="stylesheet" href="css/navbar.css">
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script defer src="js/navbar.js"></script>
 <script defer src="js/contact.js"></script>
 </head>
 
@@ -24,7 +26,14 @@
     <div class="logo-container">
         <img src="assets/image.png" alt="DP Sofa Dry Cleaning">
     </div>
-    <ul class="nav-links">
+
+    <button class="menu-toggle" id="menuToggle" aria-label="Toggle navigation menu">
+        <span></span>
+        <span></span>
+        <span></span>
+    </button>
+
+    <ul class="nav-links" id="navLinks">
 
         <li><a href="index.html">Home</a></li>
 
@@ -183,17 +192,28 @@
 <section class="map-section">
 
     <h2>Find Us On Map</h2>
+    <p style="color: #94a3b8; margin-top: 8px; font-size: 15px;">Ghumar Mandi, Ludhiana, Punjab — Serving All Across Punjab</p>
 
     <div class="map-container">
 
-        <!-- Replace src later with actual Google Map Embed -->
-
         <iframe
-            src=""
+            src="https://www.google.com/maps?q=Ghumar+Mandi,+Ludhiana,+Punjab&output=embed"
             allowfullscreen=""
-            loading="lazy">
+            loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade"
+            title="DP Sofa Dry Cleaning Location Map">
         </iframe>
 
+    </div>
+
+    <div style="margin-top: 20px;">
+        <a href="https://maps.google.com/?q=Ghumar+Mandi,+Ludhiana,+Punjab"
+           target="_blank"
+           rel="noopener noreferrer"
+           class="contact-btn"
+           style="display:inline-flex; align-items:center; gap:8px; padding:12px 28px; border-radius:30px; text-decoration:none; font-weight:600; font-size:15px; box-shadow:0 4px 15px rgba(37,99,235,0.4);">
+            📍 Open in Google Maps
+        </a>
     </div>
 
 </section>
