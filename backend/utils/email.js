@@ -7,7 +7,8 @@ const createTransporter = () => {
   const port = parseInt(cleanStr(process.env.SMTP_PORT) || '465', 10);
   const secure = cleanStr(process.env.SMTP_SECURE) === 'true' || port === 465;
   const user = cleanStr(process.env.SMTP_USER);
-  const pass = cleanStr(process.env.SMTP_PASS);
+  // Google app passwords are 16 chars; strip spaces so both 'gkun lzod iopr hals' and 'gkunlzodioprhals' work
+  const pass = cleanStr(process.env.SMTP_PASS).replace(/\s+/g, '');
 
   if (user && pass) {
     // If Gmail is used, service: 'gmail' is much more reliable on cloud hosting (Render/Heroku)
@@ -18,6 +19,9 @@ const createTransporter = () => {
           user,
           pass
         },
+        connectionTimeout: 12000,
+        greetingTimeout: 12000,
+        socketTimeout: 15000,
         tls: {
           rejectUnauthorized: false
         }
@@ -32,6 +36,9 @@ const createTransporter = () => {
         user,
         pass
       },
+      connectionTimeout: 12000,
+      greetingTimeout: 12000,
+      socketTimeout: 15000,
       tls: {
         rejectUnauthorized: false
       }
