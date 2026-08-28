@@ -7,6 +7,7 @@ const UPLOADS_DIR = path.join(__dirname, '..', 'uploads', 'gallery');
 
 // Check if Cloudinary is enabled via environment variables
 const isCloudinaryEnabled = () => {
+  if (process.env.CLOUDINARY_URL?.trim()) return true;
   const name = process.env.CLOUDINARY_CLOUD_NAME?.trim();
   const key = process.env.CLOUDINARY_API_KEY?.trim();
   const secret = process.env.CLOUDINARY_API_SECRET?.trim();
@@ -20,6 +21,9 @@ const isCloudinaryEnabled = () => {
 
 const getCloudinary = () => {
   if (isCloudinaryEnabled()) {
+    if (process.env.CLOUDINARY_URL?.trim()) {
+      return cloudinary; // cloudinary auto-configures from CLOUDINARY_URL
+    }
     cloudinary.config({
       cloud_name: process.env.CLOUDINARY_CLOUD_NAME.trim(),
       api_key: process.env.CLOUDINARY_API_KEY.trim(),
