@@ -29,6 +29,16 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!galleryGrid) return;
     galleryGrid.innerHTML = '';
 
+    if (!items || items.length === 0) {
+      galleryGrid.innerHTML = `
+        <div style="grid-column: 1 / -1; text-align: center; padding: 60px 20px; color: #94a3b8;">
+          <p style="font-size: 1.25rem; font-weight: 500; color: #e2e8f0; margin-bottom: 8px;">No gallery items available yet.</p>
+          <p style="font-size: 0.95rem;">New before & after cleaning transformations will appear here soon!</p>
+        </div>
+      `;
+      return;
+    }
+
     items.forEach((item) => {
       const card = document.createElement('div');
       card.className = 'gallery-card';
@@ -145,12 +155,11 @@ document.addEventListener('DOMContentLoaded', () => {
     return `${API_BASE}/${src}`;
   };
 
-  // Load items (images/videos) directly without modifying HTML:
-  // Update urls in js/gallery-items.json.
+  // Load items (images/videos) dynamically from API
   (async () => {
     try {
       const endpoints = [`${API_PATH}/gallery-no-db/items`, `${API_PATH}/gallery/items`];
-      let items = [];
+      let items = null;
 
       for (const endpoint of endpoints) {
         try {
@@ -166,7 +175,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       }
 
-      if (items.length > 0) {
+      if (Array.isArray(items)) {
         items = items.map((item) => ({
           ...item,
           beforeImg: toBackendUrl(item.beforeImg),
@@ -177,10 +186,10 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
     } catch (err) {
-      console.warn('gallery-items.json load failed:', err);
+      console.warn('gallery items load failed:', err);
     }
 
-    // Fallback: keep existing markup
+    // Fallback if API completely failed to connect
     const galleryCards = document.querySelectorAll('.gallery-card');
     galleryCards.forEach((card) => {
       card.addEventListener('click', () => {

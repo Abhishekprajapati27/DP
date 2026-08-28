@@ -22,7 +22,7 @@ const isCloudinaryEnabled = () => {
 const getCloudinary = () => {
   if (isCloudinaryEnabled()) {
     if (process.env.CLOUDINARY_URL?.trim()) {
-      return cloudinary; // cloudinary auto-configures from CLOUDINARY_URL
+      return cloudinary;
     }
     cloudinary.config({
       cloud_name: process.env.CLOUDINARY_CLOUD_NAME.trim(),
@@ -76,13 +76,17 @@ const uploadFile = async (file, itemDetails = {}, resourceType = 'auto') => {
   if (cld && file.path) {
     try {
       const { title = '', category = '', description = '', itemType = 'image' } = itemDetails;
-      const contextStr = `title=${encodeURIComponent(title)}|category=${encodeURIComponent(category)}|description=${encodeURIComponent(description)}|itemType=${itemType}`;
 
       const uploadRes = await cld.uploader.upload(file.path, {
         folder: 'dp_sofa_gallery',
         tags: ['dp_sofa_gallery'],
         resource_type: resourceType,
-        context: contextStr
+        context: {
+          title: title || 'DP Sofa Dry Cleaning',
+          category: category || 'Other',
+          description: description || '',
+          itemType: itemType || 'image'
+        }
       });
 
       // Remove temp local file after successful Cloudinary upload
@@ -165,12 +169,14 @@ exports.uploadGalleryItem = async (req, res) => {
       const uploaded = await uploadFile(imageFile, itemMeta, 'image');
       item.beforeImg = uploaded.url;
       item.publicId = uploaded.publicId;
+      item.id = uploaded.publicId || id;
     } else {
       // video item
       if (videoFile) {
         const uploadedVideo = await uploadFile(videoFile, itemMeta, 'video');
         item.src = uploadedVideo.url;
         item.publicId = uploadedVideo.publicId;
+        item.id = uploadedVideo.publicId || id;
       }
 
       if (imageFile && !allowedVideoExt.includes(imageExt)) {
@@ -183,6 +189,8 @@ exports.uploadGalleryItem = async (req, res) => {
       if (!item.src && imageFile) {
         const uploadedVideo = await uploadFile(imageFile, itemMeta, 'video');
         item.src = uploadedVideo.url;
+        item.publicId = uploadedVideo.publicId;
+        item.id = uploadedVideo.publicId || id;
       }
     }
 
@@ -199,11 +207,10 @@ exports.uploadGalleryItem = async (req, res) => {
 
 exports.getItems = async (req, res) => {
   try {
-    let items = readStore();
-
-    // If Cloudinary is enabled, check Cloudinary to restore any media if local store was wiped on restart
     const cld = getCloudinary();
-    if (cld && items.length === 0) {
+
+    // If Cloudinary is enabled, fetch directly from Cloudinary as the primary source of truth
+    if (cld) {
       try {
         const cldResources = await cld.api.resources({
           type: 'upload',
@@ -212,16 +219,18 @@ exports.getItems = async (req, res) => {
           context: true
         });
 
-        if (cldResources && Array.isArray(cldResources.resources) && cldResources.resources.length > 0) {
-          const restoredItems = cldResources.resources.map((resItem) => {
-            const ctx = resItem.context?.custom || {};
-            const isVid = resItem.resource_type === 'video';
+        if (cldResources && Array.isArray(cldResources.resources)) {
+          const sorted = cldResources.resources.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+          const cloudItems = sorted.map((resItem) => {
+            const ctx = resItem.context?.custom || resItem.context || {};
+            const isVid = resItem.resource_type === 'video' || ctx.itemType === 'video';
             return {
-              id: resItem.public_id.replace(/\//g, '-'),
+              id: resItem.public_id,
               type: isVid ? 'video' : 'image',
-              title: decodeURIComponent(ctx.title || 'DP Sofa Dry Cleaning'),
-              description: decodeURIComponent(ctx.description || ''),
-              category: decodeURIComponent(ctx.category || 'Other'),
+              title: ctx.title || 'DP Sofa Dry Cleaning',
+              description: ctx.description || '',
+              category: ctx.category || 'Other',
               featured: false,
               createdAt: resItem.created_at || new Date().toISOString(),
               beforeImg: isVid ? '' : resItem.secure_url,
@@ -231,16 +240,17 @@ exports.getItems = async (req, res) => {
             };
           });
 
-          if (restoredItems.length > 0) {
-            items = restoredItems;
-            writeStore(items);
-          }
+          // Sync back to local JSON cache
+          writeStore(cloudItems);
+          return res.json(cloudItems);
         }
-      } catch (cldFetchErr) {
-        console.warn('Could not sync from Cloudinary API:', cldFetchErr.message);
+      } catch (cldErr) {
+        console.warn('Cloudinary fetch failed, falling back to local cache:', cldErr.message);
       }
     }
 
+    // Local fallback
+    const items = readStore();
     res.json(items);
   } catch (err) {
     res.status(500).json({ message: err.message || 'Failed to load gallery items' });
@@ -250,44 +260,48 @@ exports.getItems = async (req, res) => {
 exports.deleteGalleryItem = async (req, res) => {
   try {
     const { id } = req.params;
+    const cld = getCloudinary();
+
+    let removed = null;
+
+    // 1) Delete from Cloudinary if enabled
+    if (cld) {
+      try {
+        const cleanPublicId = id.includes('dp_sofa_gallery') ? id : `dp_sofa_gallery/${id}`;
+        await cld.uploader.destroy(id, { invalidate: true });
+        await cld.uploader.destroy(cleanPublicId, { invalidate: true });
+        await cld.uploader.destroy(id, { resource_type: 'video', invalidate: true });
+        await cld.uploader.destroy(cleanPublicId, { resource_type: 'video', invalidate: true });
+      } catch (cldDelErr) {
+        console.warn('Cloudinary delete error:', cldDelErr.message);
+      }
+    }
+
+    // 2) Delete from local JSON store
     const items = readStore();
     const index = items.findIndex((item) => item.id === id || item.publicId === id);
 
-    if (index === -1) {
-      return res.status(404).json({ message: 'Gallery item not found' });
-    }
+    if (index !== -1) {
+      [removed] = items.splice(index, 1);
+      writeStore(items);
 
-    const [removed] = items.splice(index, 1);
-    writeStore(items);
+      const deleteLocalFile = (publicUrl) => {
+        if (!publicUrl || publicUrl.startsWith('http://') || publicUrl.startsWith('https://')) return;
+        const relativePath = publicUrl.startsWith('/') ? publicUrl.slice(1) : publicUrl;
+        const filePath = path.join(__dirname, '..', relativePath);
+        if (fs.existsSync(filePath)) {
+          try { fs.unlinkSync(filePath); } catch {}
+        }
+      };
 
-    // Delete from Cloudinary if hosted there
-    const cld = getCloudinary();
-    if (cld && removed.publicId) {
-      try {
-        const resType = removed.type === 'video' ? 'video' : 'image';
-        await cld.uploader.destroy(removed.publicId, { resource_type: resType });
-      } catch (cldDelErr) {
-        console.warn('Failed to delete from Cloudinary:', cldDelErr.message);
+      deleteLocalFile(removed.beforeImg);
+      deleteLocalFile(removed.src);
+      if (removed.poster && removed.poster !== removed.beforeImg) {
+        deleteLocalFile(removed.poster);
       }
     }
 
-    // Delete local files if they exist on disk
-    const deleteLocalFile = (publicUrl) => {
-      if (!publicUrl || publicUrl.startsWith('http://') || publicUrl.startsWith('https://')) return;
-      const relativePath = publicUrl.startsWith('/') ? publicUrl.slice(1) : publicUrl;
-      const filePath = path.join(__dirname, '..', relativePath);
-      if (fs.existsSync(filePath)) {
-        try { fs.unlinkSync(filePath); } catch {}
-      }
-    };
-
-    deleteLocalFile(removed.beforeImg);
-    deleteLocalFile(removed.src);
-    if (removed.poster && removed.poster !== removed.beforeImg) {
-      deleteLocalFile(removed.poster);
-    }
-
-    res.json({ message: 'Gallery item deleted successfully', item: removed });
+    res.json({ message: 'Gallery item deleted successfully', item: removed || { id } });
   } catch (err) {
     res.status(500).json({ message: err.message || 'Failed to delete gallery item' });
   }
