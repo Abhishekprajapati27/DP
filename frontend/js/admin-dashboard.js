@@ -122,7 +122,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!button) return;
     const id = button.dataset.id;
     if (!id) return;
-    await deleteGalleryItem(id);
+    if (confirm('Are you sure you want to delete this gallery item?')) {
+      await deleteGalleryItem(id);
+    }
   });
 
   // Load existing items on page open so delete UI works immediately
